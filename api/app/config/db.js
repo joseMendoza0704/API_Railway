@@ -1,13 +1,13 @@
 const Sequelize = require('sequelize');
 
 const sequelizeInstance = new Sequelize(
-  process.env.MYSQLDATABASE,
-  process.env.MYSQLUSER,
-  process.env.MYSQLPASSWORD,
+  process.env.DB,
+  process.env.USER,
+  process.env.PASSWORD,
   {
-    host: process.env.MYSQLHOST,
+    host: process.env.HOST,
     dialect: 'mysql',
-    port: process.env.MYSQLPORT,
+    port: process.env.MY_SQL_PORT,
     dialectOptions: {
       connectTimeout: 60000
     },
