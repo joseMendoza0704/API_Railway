@@ -1,53 +1,30 @@
-'use strict'
-
 const Sequelize = require('sequelize');
-require('dotenv').config();
 
 const sequelizeInstance = new Sequelize(
-    process.env.DB, process.env.USER, process.env.PASSWORD, {
-        host: process.env.HOST,
-        dialect: process.env.DIALECT,
-        port: process.env.MY_SQL_PORT,
-        dialectOption: {
-            ConnectionTimeOut: 100000
-        },
-        pool: {
-            max: parseInt(process.env.POOL_MAX),
-            min: parseInt(process.env.POOL_MIN),
-            acquire: parseInt(process.env.POOL_ACQUIRE),
-            idle: parseInt(process.env.POOL_IDLE),
-        }
-    }
+  process.env.MYSQLDATABASE,
+  process.env.MYSQLUSER,
+  process.env.MYSQLPASSWORD,
+  {
+    host: process.env.MYSQLHOST,
+    dialect: 'mysql', // directamente definido para evitar errores
+    port: process.env.MYSQLPORT,
+    dialectOptions: {
+      connectTimeout: 60000
+    },
+    pool: {
+      max: parseInt(process.env.POOL_MAX || 5, 10),
+      min: parseInt(process.env.POOL_MIN || 0, 10),
+      acquire: parseInt(process.env.POOL_ACQUIRE || 30000, 10),
+      idle: parseInt(process.env.POOL_IDLE || 10000, 10),
+    },
+  }
 );
 
-const db = {};
-db.Sequelize = Sequelize;
-db.sequelizeInstance = sequelizeInstance;
+const db = {
+  Sequelize,
+  sequelizeInstance,
+};
 
-db.paciente = require('../models/pacienteModel')(sequelizeInstance, Sequelize);
-db.encargado = require('../models/encargadosModel')(sequelizeInstance, Sequelize);
-db.bodegas = require('../models/bodegaModel')(sequelizeInstance, Sequelize);
-db.productos = require('../models/productoModel')(sequelizeInstance, Sequelize);
-db.terapeuta = require('../models/terapeutasModel')(sequelizeInstance, Sequelize);
-db.diagnostico = require('../models/diagnosticoModel')(sequelizeInstance, Sequelize);
-db.citas = require('../models/citasModel')(sequelizeInstance, Sequelize);
-db.usuarios = require('../models/usuarioModel')(sequelizeInstance, Sequelize);
-db.paciente.belongsTo(db.encargado, { foreignKey: 'id_encargado' });
-db.encargado.hasMany(db.paciente, { foreignKey: 'id_encargado' });
-
-db.bodegas.belongsTo(db.productos, { foreignKey: 'id_producto', as: 'producto' });
-db.productos.hasMany(db.bodegas, { foreignKey: 'id_producto' });
-
-db.diagnostico.belongsTo(db.paciente, { foreignKey: 'id_paciente' });
-db.paciente.hasMany(db.diagnostico, { foreignKey: 'id_paciente' });
-
-db.diagnostico.belongsTo(db.terapeuta, { foreignKey: 'id_terapeuta' });
-db.terapeuta.hasMany(db.diagnostico, { foreignKey: 'id_terapeuta' });
-
-db.citas.belongsTo(db.paciente, { foreignKey: 'id_paciente' });
-db.paciente.hasMany(db.citas, { foreignKey: 'id_paciente' });
-
-db.citas.belongsTo(db.terapeuta, { foreignKey: 'id_terapeuta' });
-db.terapeuta.hasMany(db.citas, { foreignKey: 'id_terapeuta' });
+// modelos y relaciones aquí...
 
 module.exports = db;
